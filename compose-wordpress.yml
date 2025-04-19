@@ -1,4 +1,41 @@
 version: "3.8"
 
 services:
-	wordpress:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    networks:
+      - wp_network
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    networks:
+      - wp_network
+    volumes:
+      - db_data:/var/lib/mysql
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+networks:
+  wp_network:
+    external: true
+
+volumes:
+  db_data:
