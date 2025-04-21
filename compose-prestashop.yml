@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+	web:
+ 		image: prestashop/prestashop:
+	 	environmends:
+	 		DB_SERVER: db:3307
+			DB_USER: prestashop
+	 		DB_PASSWD: ps1234
+		  DB_NAME: prestashop
+			DB_PREFIX: ps_
+	 	depends_on:
+	 	  - db
+	 	networks:
+	 	  - prestashop
+
+ 	db:
+		image: mysql:5.7
+		environmends:
+			MYSQL_ROOT_PASSWORD: ps1234
+			MYSQL_DATABASE: prestashop
+	 		MYSQL_USER: prestashop
+			MYSQL_PASSWORD: ps1234
+		volumes:
+			- db_data:/var/lib/mysql
+
+		networks:
+			- prestashop
+
+volumes:
+	db_data:
+
+network:
+	prestashop:
+ 		external: true
+	 
