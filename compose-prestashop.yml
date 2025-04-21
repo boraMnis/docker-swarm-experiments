@@ -4,31 +4,39 @@ services:
   web:
     image: prestashop/prestashop:latest
     environment:
-      DB_SERVER=db:3307
-      DB_USER=prestashop
-      DB_PASSWD=ps1234
-      DB_NAME=prestashop
-      DB_PRESFIX=ps_
+      - DB_SERVER=db:3307
+      - DB_USER=prestashop
+      - DB_PASSWD=ps1234
+      - DB_NAME=prestashop
+      - DB_PRESFIX=ps_
     ports:
       - 8080:80
     depends_on:
       - db
     networks:
       - prestashop
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   db:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD=ps1234
-      MYSQL_DATABASE=prestashop
-      MYSQL_USER=prestashop
-      MYSQL_PASSWORD=ps1234
+      - MYSQL_ROOT_PASSWORD=ps1234
+      - MYSQL_DATABASE=prestashop
+      - MYSQL_USER=prestashop
+      - MYSQL_PASSWORD=ps1234
     ports:
       - 3307:3307
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - prestashop
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
 volumes:
   db_data:
