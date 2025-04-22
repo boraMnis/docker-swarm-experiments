@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: opencart-web
+    ports:
+      - "8080:80"
+    volumes:
+      - opencart_data:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - opencart-net
+    environment:
+      - OPENCART_INSTALL=true  # só para exemplo; o install é feito via navegador
+
+  db:
+    image: mariadb:10.5
+    container_name: opencart-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: opencart
+      MYSQL_USER: opencartuser
+      MYSQL_PASSWORD: opencartpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - opencart-net
+
+volumes:
+  db_data:
+  opencart_data:
+
+networks:
+  opencart-net:
+    driver: bridge
