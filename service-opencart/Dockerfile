@@ -34,7 +34,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 # Baixa e extrai o OpenCart (ex: versão 4.0.2.3)
-ADD https://github.com/boraMnis/docker-swarm-experiments/
+ADD https://github.com/opencart/opencart/releases/download/4.0.2.3/upload.zip /tmp/opencart.zip
 
 # Descompacta o arquivo zip manualmente
 RUN unzip /tmp/opencart.zip -d /var/www/html && \
