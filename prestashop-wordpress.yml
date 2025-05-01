@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  prestashop:
+    image: prestashop/prestashop:latest
+    environment:
+      DB_SERVER: db
+      DB_USER: prestashop
+      DB_PASSWD: prestashop
+      DB_NAME: prestashop
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8081:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db
+    networks:
+      - network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  db:
+    image: mysql:5.7
+    restart: on-failure
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  network:
+
+volumes:
+  db_data:
