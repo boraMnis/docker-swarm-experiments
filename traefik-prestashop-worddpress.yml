@@ -5,7 +5,7 @@ services:
     # The official v3 Traefik docker image
     image: traefik:v3.3
     # Enables the web UI and tells Traefik to listen to docker
-    command: 
+    command:
       - --api.dashboard=true
       - --providers.docker
       - --entrypoints.web.address=:80
@@ -21,7 +21,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constrainents: [ node.rule==manager ]
+        constraints: [ node.rule==manager ]
       restart_policy:
         condition: on-failure
 #    labels:
@@ -30,7 +30,7 @@ services:
 #    - "traefik.http.routers.reverse-proxy.tls.certresolver=le"
 #    - "traefik.http.routers.reverse-proxy.service=api@internal"
 #    - "traefik.http.routers.reverse-proxy.middlewares=auth-traefik"
-#    - "traefik.http.middlewares.auth-traefik.basicauth.users=admin:$$2y$$05$$ZoBCeOsqxyO7P2WtehPUJeVdl0OJGLFjgjXdhm84NAZS1C3K130bi" 
+#    - "traefik.http.middlewares.auth-traefik.basicauth.users=admin:$$2y$$05$$ZoBCeOsqxyO7P2WtehPUJeVdl0OJGLFjgjXdhm84NAZS1C3K130bi"
 
   prestashop:
     image: prestashop/prestashop:latest
@@ -78,7 +78,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constrainents: [ node.rule==worker ]
+        constraints: [ node.rule==worker ]
       restart_policy:
         condition: on-failure
 
