@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.3
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - --api.dashboard=true
+      - --providers.docker
+      - --entrypoints.web.address=:80
+      - --log.level=DEBUG
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    networks:
+      - traefik
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.rule==manager ]
+      restart_policy:
+        condition: on-failure
+#    labels:
+#    - "traefik.http.routers.reverse-proxy.rule=Host(`traefik.docker.localhost`)"
+#    - "traefik.http.routers.reverse-proxy.entrypoints=web"
+#    - "traefik.http.routers.reverse-proxy.tls.certresolver=le"
+#    - "traefik.http.routers.reverse-proxy.service=api@internal"
+#    - "traefik.http.routers.reverse-proxy.middlewares=auth-traefik"
+#    - "traefik.http.middlewares.auth-traefik.basicauth.users=admin:$$2y$$05$$ZoBCeOsqxyO7P2WtehPUJeVdl0OJGLFjgjXdhm84NAZS1C3K130bi"
+
+  prestashop:
+    image: prestashop/prestashop:latest
+    environment:
+      DB_SERVER: db
+      DB_USER: prestashop
+      DB_PASSWD: prestashop
+      DB_NAME: prestashop
+    networks:
+      - traefik      
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.rule==worker ]
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prestashop.rule=Host(`prestashop.docker.localhost`)"
+      - "traefik.http.routers.prestashop.entrypoint=web"
+
+  wordpress:
+    image: wordpress:latest
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.role==worker ]
+      restart_policy:
+        condition: on-failure
+    networks:
+      - traefik        
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wordpress.rule=Host(`wordpress.docker.localhost`)"
+      - "traefik.http.routers.wordpress.entrypoints=web"
+
+  db:
+    image: mysql:5.7
+    restart: on-failure
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - db_data:/var/lib/mysql
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.rule==worker ]
+      restart_policy:
+        condition: on-failure
+    networks:
+      - traefik
+
+volumes:
+  db_data:
+networks:
+  traefik:
